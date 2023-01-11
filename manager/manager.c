@@ -22,8 +22,11 @@ int main(int argc, char **argv) {
     char const *command = argv[3]; //argv[3] é o comando
     if (argc == 5) {
         char const *box_name = argv[4]; //argv[4] é o nome da box
+        (void) box_name; //TODO: remover isto
     }
-    
+    (void)pipenameManager;//TODO: remover isto
+    (void)pipenameMBroker;
+    (void)command;
 
     print_usage();
     WARN("unimplemented"); // TODO: implement

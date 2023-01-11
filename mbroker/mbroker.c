@@ -8,12 +8,13 @@ int main(int argc, char **argv) {  //argc= nº de cenas; argv= lista com as cois
         return -1;
     }
     char const *pipename = argv[1]; //argv[1] é o nome do pipe
+    (void) pipename; //TODO: remover isto
     int max_sessions = atoi(argv[2]); //argv[2] é o nº máximo de sessões
     if (max_sessions <= 0) {
         fprintf(stderr, "usage: mbroker <pipename> <max_sessions>\n");
         return -1;
     }
-    if (mbroker_init(pipename, max_sessions) != 0) {
+    /*if (mbroker_init(pipename, max_sessions) != 0) {
         return -1;
     }
     if (mbroker_run() != 0) {
@@ -21,7 +22,7 @@ int main(int argc, char **argv) {  //argc= nº de cenas; argv= lista com as cois
     }
     if (mbroker_destroy() != 0) {
         return -1;
-    }
+    }*/
     //fprintf(stderr, "usage: mbroker <pipename>\n");
     WARN("unimplemented"); // TODO: implement
 
