@@ -1,4 +1,5 @@
 #include "logging.h"
+#include <string.h>
 
 static void print_usage() {
     fprintf(stderr, "usage: \n"
@@ -28,6 +29,18 @@ int main(int argc, char **argv) {
     (void)pipenameMBroker;
     (void)command;
 
+    //encaminhar para cada caso consoante o comando dado
+    if (strcmp(command, "create") == 0) {
+        //fazer coisas
+    } else if (strcmp(command, "remove") == 0) {
+        //fazer coisas
+    } else if (strcmp(command, "list") == 0) {
+        //fazer coisas
+    } else {
+        print_usage();
+        return -1;
+    }
+    
     print_usage();
     WARN("unimplemented"); // TODO: implement
     return -1;
