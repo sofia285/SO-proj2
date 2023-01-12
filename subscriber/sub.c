@@ -23,7 +23,7 @@ int main(int argc, char **argv) { //sub <register_pipe_name> <pipe_name> <box_na
     char buf[TAMMSG];
     ssize_t n;
 
-    if (argc != 3){ 
+    if (argc != 4){ 
         fprintf(stderr, "usage: sub <register_pipe_name> <box_name>\n"); //DEBUG: pode n ser nada disto
         exit(1);
     }
@@ -34,6 +34,7 @@ int main(int argc, char **argv) { //sub <register_pipe_name> <pipe_name> <box_na
     (void)pipenameSub;//TODO: remover isto
     (void)pipenameMBroker;
     (void)box_name;
+    (void)n;
 
     if ((fserv = open (argv[1], O_WRONLY)) < 0){
 	    exit(1);
