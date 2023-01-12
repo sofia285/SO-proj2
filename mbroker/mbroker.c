@@ -13,16 +13,23 @@ void server(char* register_name_pipe, char* max_sessions);
 
 
 int main(int argc, char **argv) {  //argc= nº de cenas; argv= lista com as coisas; 
+
     if (argc != 3){ //confirmar que são 3 coisas: mbroker <register_pipe_name> <max_sessions>
+        printf("Entrou no argc != 3\n");
+        printf("argc: %d", argc);
+
         fprintf(stderr, "usage: mbroker <pipename> <max_sessions>\n"); //DEBUG: pode n ser nada disto
         exit(1);
     }
+
     char *pipename = argv[1]; //argv[1] é o nome do pipe
     char *max_sessions = argv[2]; //argv[2] é o nº máximo de sessões
-    if (atoi(max_sessions) <= 0) {
+
+    if (atoi(max_sessions) < 1) {
         fprintf(stderr, "usage: mbroker <pipename> <max_sessions>\n");
         return -1;
     }
+
     server(pipename, max_sessions);
     return -0;
 }
