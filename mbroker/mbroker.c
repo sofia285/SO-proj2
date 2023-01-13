@@ -26,12 +26,15 @@ int main(int argc, char **argv) {  //argc= nº de cenas; argv= lista com as cois
     char *max_sessions = argv[2]; //argv[2] é o nº máximo de sessões
 
     if (atoi(max_sessions) < 1) {
+        printf("Entrou no atoi\n");
+        printf("max_sessions: %s", max_sessions);
         fprintf(stderr, "usage: mbroker <pipename> <max_sessions>\n");
-        return -1;
+        exit(1);
     }
 
     server(pipename, max_sessions);
-    return -0;
+    printf("\t----DEBUG----\n");
+    return 0;
 }
 
 void server(char* register_name_pipe, char* max_sessions) {
@@ -39,6 +42,13 @@ void server(char* register_name_pipe, char* max_sessions) {
     int fcli, fserv;
     ssize_t n;
     char buf[TAMMSG];
+
+    /*if (register_name_pipe ja existe){
+        exit(1);
+    }
+    if (n_sessions >= max_sessions){
+        exit(1);
+    }*/
 
     printf("register_name_pipe: %s | max_sessions: %s\n", register_name_pipe, max_sessions);
 
@@ -73,5 +83,4 @@ void server(char* register_name_pipe, char* max_sessions) {
     close(fcli);
     unlink(register_name_pipe);
     unlink("/tmp/cliente");
-
 }

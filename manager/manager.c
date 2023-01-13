@@ -11,7 +11,7 @@ static void print_usage() {
 int main(int argc, char **argv) {
     if (argc < 4 || argc > 5){ //confirmar que o tamanho do argv é 4 ou 5 aka o correcto
         print_usage();
-        return -1;
+        exit(1);
     }
     
     //manager <register_pipe_name> <pipe_name> create <box_name>
@@ -38,10 +38,8 @@ int main(int argc, char **argv) {
         //fazer coisas
     } else {
         print_usage();
-        return -1;
+        exit(1);
     }
     
-    print_usage();
-    WARN("unimplemented"); // TODO: implement
-    return -1;
+    return 0;
 }
