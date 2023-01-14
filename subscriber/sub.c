@@ -7,40 +7,48 @@
 #include <sys/types.h> 
 #include <unistd.h> 
 #include <stdlib.h>
+#include <stdint.h>
 
-#define TAMMSG 1000
-
-void produzMsg(char *buf) {
-strcpy(buf, "Mensagem de teste");
-}
-
-void trataMsg(char *buf) {
-printf("Recebeu: %s\n", buf);
-}
+#define REGISTER_INFO_SIZE 2000
+#define MESSAGE_SIZE 1025
 
 int main(int argc, char **argv) {
-  int fcli, fserv;
-  char buf[TAMMSG];
+  int fsub, fserv;
+  char register_info[REGISTER_INFO_SIZE] = {'\0'}, message[MESSAGE_SIZE] = {'\0'};
   ssize_t n;
 
-  /* Os pipes são criados e destruídos pelo servidor */
-  /* Abrir os pipes */
-  if (argc < 1) {
-    exit(1);
-  }
+   // verifications
+   if (argc != 5 || strcmp(argv[1], "sub")) {exit(1);}
 
-  if ((fserv = open (argv[1], O_WRONLY)) < 0)
-	exit(1);
-  if ((fcli = open ("/tmp/cliente", O_RDONLY)) < 0) {
-    exit(1);
-  }
+   // opens the <register_pipe_name> to talk with the server
+   if ((fserv = open (argv[2], O_WRONLY)) < 0) {exit(1);}
 
-  produzMsg(buf);
-  n = write(fserv, buf, TAMMSG);
-  n = read(fcli, buf, TAMMSG);
-trataMsg(buf);
+   // creates subscriber's register request 
+   uint8_t code = 2;
+   register_info[0] = code; //might not be recommended but are both 1 byte long
+   strcpy(&register_info[1], argv[3]);
+   strcpy(&register_info[33], argv[4]);
 
-  /* Fechar os pipes */
-  close(fserv);
-  close(fcli);
+   // sends the OP_CODE, <pipe_name> and <box_name> to the server
+   n = write(fserv, register_info, REGISTER_INFO_SIZE);
+   if (n <= 0) {exit(1);}
+
+   unlink(argv[3]);
+
+   // creates the fifo <pipe_name>
+   if (mkfifo(argv[3], 0777) < 0) {
+      exit (1);
+   }
+
+   // opens the <pipe_name>
+   if ((fsub = open (argv[3], O_RDONLY)) < 0) {exit(1);}
+
+   // receives the messages from the server through the <pipe_name>
+   n = read(fsub, message, MESSAGE_SIZE);
+
+   /* closes the pipes */
+   close(fsub);
+   close(fserv);
+
+   return 0;
 }
