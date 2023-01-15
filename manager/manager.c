@@ -26,60 +26,74 @@ Se a ligacao for aceite:
 #include <stdint.h>
 
 #define REGISTER_INFO_SIZE 2000
-#define MESSAGE_SIZE 1025
+#define MESSAGE_SIZE 1029
 #define SCANF_SIZE 1024
 #define PIPE_NAME_SIZE 256
 #define BOX_NAME_SIZE 32
 #define CODE_SIZE 1
+#define LIST_MESSAGE_SIZE 58
 
 
 int main(int argc, char **argv) {
-   int fserv;
+   int fserv, fman;
    ssize_t n;
    uint8_t code = 3;
    size_t register_info_offset = 0;
+   void *message = malloc(MESSAGE_SIZE*sizeof(uint8_t));
    void *register_info = malloc(REGISTER_INFO_SIZE*sizeof(uint8_t));
 
    //verificatins
-   if ((argc < 5) || (argc > 6)) {exit(1);}
+   if ((argc < 4) || (argc > 5)) {exit(1);}
 
    // opens the <register_pipe_name> to talk with the server
-   if ((fserv = open (argv[2], O_WRONLY)) < 0) {exit(1);}
+   if ((fserv = open (argv[1], O_WRONLY)) < 0) {exit(1);}
 
-   // creates publisher's register request
-   if (argc == 6) {
+   // creates manager's register request
+   if (argc == 5) {
 
-      if (!strcmp(argv[4], "create")) {
+      if (!strcmp(argv[3], "create")) {
          code = 3;
       }
 
-      else if (!strcmp(argv[4], "remove")){
+      else if (!strcmp(argv[3], "remove")){
          code = 5;
       }
 
       memcpy(register_info, &code, CODE_SIZE); 
       register_info_offset += CODE_SIZE;
-      memcpy(register_info + register_info_offset, argv[3], PIPE_NAME_SIZE);
+      memcpy(register_info + register_info_offset, argv[2], PIPE_NAME_SIZE);
       register_info_offset += PIPE_NAME_SIZE;
-      memcpy(register_info + register_info_offset, argv[4], strlen(argv[4]) + 1);
-      register_info_offset += strlen(argv[4]) + 1;
-      memcpy(register_info + register_info_offset, argv[5], BOX_NAME_SIZE);
+      memcpy(register_info + register_info_offset, argv[4], BOX_NAME_SIZE);
    }
-
-   else if (!strcmp(argv[4], "list")){
+   else if (!strcmp(argv[3], "list")){
       code = 7;
       memcpy(register_info, &code, CODE_SIZE); 
       register_info_offset += CODE_SIZE;
-      memcpy(register_info + register_info_offset, argv[3], PIPE_NAME_SIZE);
+      memcpy(register_info + register_info_offset, argv[2], PIPE_NAME_SIZE);
       register_info_offset += PIPE_NAME_SIZE;
-      memcpy(register_info + register_info_offset, argv[4], strlen(argv[4]) + 1);
-      register_info_offset += strlen(argv[4]) + 1;
    }
 
+   // sends the OP_CODE, <pipe_name> and <box_name> (if there is one) to the server
    n = write(fserv, register_info, REGISTER_INFO_SIZE);
    if (n <= 0) {exit(1);}
 
-   /* Fechar os pipes */
-   close(fserv);
+   // creates the fifo <pipe_name>
+   unlink(argv[2]);
+   if (mkfifo(argv[3], 0777) < 0) {exit (1);}
+
+   // opens the <pipe_name>
+   if ((fman = open (argv[2], O_RDONLY)) < 0) {exit(1);}
+
+   // receives the message(s) from the server through the <pipe_name>
+   if (argc == 5) {
+      n = read(fman, message, MESSAGE_SIZE);
+   }
+   else {
+      n = read(fman, message, LIST_MESSAGE_SIZE);
+   }
+
+   /* closes the pipe */
+   sleep(1);
+   close(fman);
    return 0;
 }

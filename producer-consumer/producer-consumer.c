@@ -90,7 +90,7 @@ void *pcq_dequeue(pc_queue_t *queue){
    pthread_mutex_lock(&(queue->pcq_tail_lock));
    elem = queue->pcq_buffer[queue->pcq_tail];
    queue->pcq_tail = (queue->pcq_tail + 1) % queue->pcq_capacity;
-   pthread_mutex_lock(&(queue->pcq_tail_lock));
+   pthread_mutex_unlock(&(queue->pcq_tail_lock));
 
    queue->pcq_current_size--;
 

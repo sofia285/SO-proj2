@@ -25,10 +25,10 @@ int main(int argc, char **argv) {
    void *register_info = malloc(REGISTER_INFO_SIZE*sizeof(uint8_t));
 
    // verifications
-   if (argc != 5 || strcmp(argv[1], "sub")) {exit(1);}
+   if (argc != 4) {exit(1);}
 
    // opens the <register_pipe_name> to talk with the server
-   if ((fserv = open (argv[2], O_WRONLY)) < 0) {exit(1);}
+   if ((fserv = open (argv[1], O_WRONLY)) < 0) {exit(1);}
 
    // creates subscriber's register request 
    code = 2;
@@ -37,27 +37,26 @@ int main(int argc, char **argv) {
    memcpy(register_info + register_info_offset, argv[3], PIPE_NAME_SIZE);
    register_info_offset += PIPE_NAME_SIZE;
    memcpy(register_info + register_info_offset, argv[4], BOX_NAME_SIZE);
-   
+
    // sends the OP_CODE, <pipe_name> and <box_name> to the server
    n = write(fserv, register_info, REGISTER_INFO_SIZE);
    if (n <= 0) {exit(1);}
 
-   unlink(argv[3]);
-
    // creates the fifo <pipe_name>
-   if (mkfifo(argv[3], 0777) < 0) {
+   unlink(argv[2]);
+   if (mkfifo(argv[2], 0777) < 0) {
       exit (1);
    }
 
    // opens the <pipe_name>
-   if ((fsub = open (argv[3], O_RDONLY)) < 0) {exit(1);}
+   if ((fsub = open (argv[2], O_RDONLY)) < 0) {exit(1);}
 
    // receives the messages from the server through the <pipe_name>
    n = read(fsub, message, MESSAGE_SIZE);
 
-   /* closes the pipes */
+   /* closes the pipe */
+   sleep(1);
    close(fsub);
-   close(fserv);
 
    return 0;
 }

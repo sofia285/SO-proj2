@@ -4,6 +4,7 @@
       "config.h": "c",
       "operations.h": "c",
       "state.h": "c",
-      "producer-consumer.h": "c"
+      "producer-consumer.h": "c",
+      "system_error": "c"
    }
 }

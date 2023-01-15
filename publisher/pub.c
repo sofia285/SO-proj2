@@ -31,40 +31,37 @@ Se a ligacao for aceite:
 int main(int argc, char **argv) {
    ssize_t n;
    int fpub, fserv;
+   uint8_t code = 1;
+   size_t register_info_offset = 0;
    void *message = malloc(MESSAGE_SIZE*sizeof(uint8_t));
    void *register_info = malloc(REGISTER_INFO_SIZE*sizeof(uint8_t));
-   size_t register_info_offset = 0;
-   uint8_t code = 1;
 
    // verifications
-   if (argc != 5 || strcmp(argv[1], "pub")) {
-      exit(1);
-   }
+   if (argc != 4) {exit(1);}
    
    // opens the <register_pipe_name> to talk with the server
-   if ((fserv = open (argv[2], O_WRONLY)) < 0) {exit(1);}
+   if ((fserv = open (argv[1], O_WRONLY)) < 0) {exit(1);}
    
    // creates publisher's register request
    code = 1;
    memcpy(register_info, &code, CODE_SIZE); 
    register_info_offset += CODE_SIZE;
-   memcpy(register_info + register_info_offset, argv[3], PIPE_NAME_SIZE);
+   memcpy(register_info + register_info_offset, argv[2], PIPE_NAME_SIZE);
    register_info_offset += PIPE_NAME_SIZE;
-   memcpy(register_info + register_info_offset, argv[4], BOX_NAME_SIZE);
+   memcpy(register_info + register_info_offset, argv[3], BOX_NAME_SIZE);
 
    // sends the OP_CODE, <pipe_name> and <box_name> to the server
    n = write(fserv, register_info, REGISTER_INFO_SIZE);
    if (n <= 0) {exit(1);}
 
-   unlink(argv[3]);
-
    // creates the fifo <pipe_name>
-   if (mkfifo(argv[3], 0777) < 0) {
+   unlink(argv[2]);
+   if (mkfifo(argv[2], 0777) < 0) {
       exit (1);
    }
 
    // opens the <pipe_name>
-   if ((fpub = open (argv[3], O_WRONLY)) < 0) {
+   if ((fpub = open (argv[2], O_WRONLY)) < 0) {
 	   exit(1);
    }
 
@@ -72,23 +69,23 @@ int main(int argc, char **argv) {
    char buf[SCANF_SIZE];
    int error = scanf("%s", buf);
    if(error <= 0) {exit(1);}
+   /*if(fgets(buf, SCANF_SIZE, stdin) == NULL){
+      printf("Error scaning message \n");
+      exit(1);
+   }*/
    code = 9;
    memcpy(message, &code, CODE_SIZE); 
    memcpy(message + CODE_SIZE, &buf, SCANF_SIZE);
-
-
 
    // sends the message to the server through the <pipe_name>
    n = write(fpub, message, MESSAGE_SIZE);
 
    // if the publisher receives an EOF, it closes the <pipe_name>
-   if (!strcmp(message, "EOF")){
-      close(fpub);
-   }
+   if (!strcmp(message, "EOF")) {close(fpub);}
 
-   /* closes the pipes */
+   /* closes the pipe */
+   sleep(1);
    close(fpub);
-   close(fserv);
 
    return 0;
 }
