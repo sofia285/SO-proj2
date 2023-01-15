@@ -1,17 +1,4 @@
-/*Começar por se ligar ao FIFO do servidor (como escrita) <register_pipe_name>
-Manda mensagem ao server pelo fifo: Register info
-        -tipo de cliente (pub, sub, manager) aka code. é um integer
-        -nome do named pipe: <pipe_name> 256 chars
-        -nome da caixa de mensagens: <box_name> 32 chars
-Se a ligacao for aceite:
-        -Cria o fifo <pipe_name>
-        -Lê do terminal
-        -Publica a mensagem através do <pipe_name> 
-
-*/
-
-//#include "logging.h"
-
+#include "logging.h"
 #include <stdio.h> 
 #include <string.h> 
 #include <fcntl.h> 
@@ -21,7 +8,7 @@ Se a ligacao for aceite:
 #include <stdlib.h>
 #include <stdint.h>
 
-#define REGISTER_INFO_SIZE 2000
+#define REGISTER_INFO_SIZE 289
 #define MESSAGE_SIZE 1025
 #define SCANF_SIZE 1024
 #define PIPE_NAME_SIZE 256
@@ -65,26 +52,28 @@ int main(int argc, char **argv) {
 	   exit(1);
    }
 
-   // reads message from terminal
-   char buf[SCANF_SIZE];
-   int error = scanf("%s", buf);
-   if(error <= 0) {exit(1);}
-   /*if(fgets(buf, SCANF_SIZE, stdin) == NULL){
-      printf("Error scaning message \n");
-      exit(1);
-   }*/
-   code = 9;
-   memcpy(message, &code, CODE_SIZE); 
-   memcpy(message + CODE_SIZE, &buf, SCANF_SIZE);
+   free(register_info);
 
-   // sends the message to the server through the <pipe_name>
-   n = write(fpub, message, MESSAGE_SIZE);
+   while(1){
+      fprintf(stdout,"Please type your message: \n");
 
-   // if the publisher receives an EOF, it closes the <pipe_name>
-   if (!strcmp(message, "EOF")) {close(fpub);}
+      // reads message from terminal
+      char buf[SCANF_SIZE];
+      int error = scanf("%s", buf);
+      if(error == EOF) {break;}
+
+      //Creates msg to send to server
+      code = 9;
+      memcpy(message, &code, CODE_SIZE); 
+      memcpy(message + CODE_SIZE, &buf, SCANF_SIZE);
+
+      // sends the message to the server through the <pipe_name>
+      n = write(fpub, message, MESSAGE_SIZE);
+
+      free(message);
+   }
 
    /* closes the pipe */
-   sleep(1);
    close(fpub);
 
    return 0;
