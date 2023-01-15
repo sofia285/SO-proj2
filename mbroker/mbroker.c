@@ -43,10 +43,10 @@ int main(int argc, char **argv) {
    printf("Running mbroker \n");
    fflush(stdout);
 
-   int fserv, fpub;
+   int fserv; //fpub;
    ssize_t n;
-   char register_info[REGISTER_INFO_SIZE], pipe_name[PIPE_NAME_SIZE], 
-   box_name[BOX_NAME_SIZE], message[MESSAGE_SIZE];
+   char register_info[REGISTER_INFO_SIZE]; //pipe_name[PIPE_NAME_SIZE], 
+   //box_name[BOX_NAME_SIZE], message[MESSAGE_SIZE];
 
    // verifications
    if (argc != 4 || strcmp(argv[1], "mbroker")) {
@@ -101,9 +101,9 @@ int main(int argc, char **argv) {
     exit(1);
    }
    
-   uint8_t code = register_info[0];
+   //uint8_t code = register_info[0];
 
-   if (code == 1) {
+   /*if (code == 1) {
       for(int i = 1; i <= 257; i++) {pipe_name[i - 1] = register_info[i];}
       for(int i = 258; i <= 290; i++) {box_name[i - 1] = register_info[i];}
       if ((fpub = open (pipe_name, O_RDONLY)) < 0) {exit(1);}
@@ -121,7 +121,7 @@ int main(int argc, char **argv) {
       tfs_read(fhandle, message, MESSAGE_SIZE);
       tfs_close(fhandle);
       
-   }
+   }*/
    sleep(1);
    return 0;
 }

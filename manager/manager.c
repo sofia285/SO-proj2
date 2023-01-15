@@ -27,37 +27,53 @@ Se a ligacao for aceite:
 
 #define REGISTER_INFO_SIZE 2000
 #define MESSAGE_SIZE 1025
+#define SCANF_SIZE 1024
+#define PIPE_NAME_SIZE 256
+#define BOX_NAME_SIZE 32
+#define CODE_SIZE 1
 
 
 int main(int argc, char **argv) {
    int fserv;
-   char register_info[REGISTER_INFO_SIZE];
    ssize_t n;
+   uint8_t code = 3;
+   size_t register_info_offset = 0;
+   void *register_info = malloc(REGISTER_INFO_SIZE*sizeof(uint8_t));
 
+   //verificatins
    if ((argc < 5) || (argc > 6)) {exit(1);}
 
+   // opens the <register_pipe_name> to talk with the server
    if ((fserv = open (argv[2], O_WRONLY)) < 0) {exit(1);}
 
-   uint8_t code;
+   // creates publisher's register request
    if (argc == 6) {
+
       if (!strcmp(argv[4], "create")) {
-         code = 1;
-         register_info[0] = (uint8_t)code; //might not be recommended but are both 1 byte long
-         strcpy(&register_info[1], argv[3]);
-         strcpy(&register_info[33], argv[4]);
+         code = 3;
       }
+
       else if (!strcmp(argv[4], "remove")){
          code = 5;
-         register_info[0] = code;
-         strcpy(&register_info[1], argv[3]);
-         strcpy(&register_info[33], argv[4]);
       }
+
+      memcpy(register_info, &code, CODE_SIZE); 
+      register_info_offset += CODE_SIZE;
+      memcpy(register_info + register_info_offset, argv[3], PIPE_NAME_SIZE);
+      register_info_offset += PIPE_NAME_SIZE;
+      memcpy(register_info + register_info_offset, argv[4], strlen(argv[4]) + 1);
+      register_info_offset += strlen(argv[4]) + 1;
+      memcpy(register_info + register_info_offset, argv[5], BOX_NAME_SIZE);
    }
 
-   else {
-      code = 5;
-      register_info[0] = code;
-      strcpy(&register_info[1], argv[3]);
+   else if (!strcmp(argv[4], "list")){
+      code = 7;
+      memcpy(register_info, &code, CODE_SIZE); 
+      register_info_offset += CODE_SIZE;
+      memcpy(register_info + register_info_offset, argv[3], PIPE_NAME_SIZE);
+      register_info_offset += PIPE_NAME_SIZE;
+      memcpy(register_info + register_info_offset, argv[4], strlen(argv[4]) + 1);
+      register_info_offset += strlen(argv[4]) + 1;
    }
 
    n = write(fserv, register_info, REGISTER_INFO_SIZE);
