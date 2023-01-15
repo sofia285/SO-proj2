@@ -181,11 +181,13 @@ void *thread_function(void *arg) {
          free(message);
       }
       else if (code == 7){ //Send the list to the manager
+
             //Sends message to manager
             ssize_t offset = 0;
             void *manager_message = malloc(LIST_MESSAGE_SIZE*sizeof(uint8_t));
             uint8_t second_code = 8;
             uint8_t last = 0; //1 if it is the last element (otherwise 0) 
+
 
             if(box_list->next->box_name!= NULL){
                memcpy(manager_message, &second_code, CODE_SIZE); 
@@ -202,6 +204,7 @@ void *thread_function(void *arg) {
 
                if ((fcli = open (pipe_name, O_WRONLY)) < 0) {exit(1);}
                n = write(fcli, manager_message, LIST_MESSAGE_SIZE);
+
                if(n <= 0) {exit(1);}
 
                free(manager_message);

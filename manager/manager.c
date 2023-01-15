@@ -83,7 +83,7 @@ int main(int argc, char **argv) {
    }
    else {
       void *manager_message = malloc(LIST_MESSAGE_SIZE*sizeof(uint8_t));
-      n = read(fman, message, LIST_MESSAGE_SIZE);
+      n = read(fman, manager_message, LIST_MESSAGE_SIZE);
 
       ssize_t offset = 0;
       uint8_t second_code = 8;
@@ -97,7 +97,7 @@ int main(int argc, char **argv) {
       offset+=CODE_SIZE;
       memcpy(&last,manager_message + offset,  CODE_SIZE); 
       offset+=CODE_SIZE;
-      memcpy(box_name, manager_message + offset,BOX_NAME_SIZE);
+      memcpy(box_name, manager_message + offset, BOX_NAME_SIZE);
       offset+=BOX_NAME_SIZE;
       memcpy(&box_size, manager_message + offset, sizeof(uint64_t));
       offset+=8;
